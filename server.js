@@ -32,14 +32,14 @@ app.post("/api/order", async (req, res) => {
     }
 
     const lines = [];
-    lines.push("📦 Новый заказ на свечи");
+    lines.push("Новый заказ на свечи");
     lines.push("━━━━━━━━━━━━━━━");
-    lines.push(`👤 Имя: ${firstName}${lastName ? " " + lastName : ""}`);
-    lines.push(`📞 Телефон: ${phone}`);
-    if (delivery) lines.push(`🚚 Доставка: ${delivery}`);
-    if (payment) lines.push(`💳 Оплата: ${payment}`);
-    if (date) lines.push(`🗓 Дата отправки: ${date}`);
-    if (comment) lines.push(`💬 Комментарий: ${comment}`);
+    lines.push(` Имя: ${firstName}${lastName ? " " + lastName : ""}`);
+    lines.push(` Телефон: ${phone}`);
+    if (delivery) lines.push(` Доставка: ${delivery}`);
+    if (payment) lines.push(` Оплата: ${payment}`);
+    if (date) lines.push(` Дата отправки: ${date}`);
+    if (comment) lines.push(` Комментарий: ${comment}`);
 
     if (Array.isArray(items) && items.length) {
       lines.push("───────────────");
