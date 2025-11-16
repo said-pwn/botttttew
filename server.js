@@ -4,15 +4,17 @@ import fetch from "node-fetch";
 
 const app = express();
 
-// 🧱 Middleware
+// Middleware
 app.use(express.json());
-app.use(cors({ origin: "http://localhost:5173" }));
+// Allow all origins (Render/public), and handle preflight
+app.use(cors());
+app.options("*", cors());
 
-// ⚙️ Конфигурация Telegram
+// Конфигурация Telegram
 const BOT_TOKEN = "8278406628:AAEC8yF_ZRjSbEVNsz-1RDXejm-HxK-P0MY";
 const CHAT_ID = "1395598568";
 
-// 📩 POST маршрут для заказов
+// POST маршрут для заказов
 app.post("/api/order", async (req, res) => {
   try {
     const {
@@ -32,14 +34,14 @@ app.post("/api/order", async (req, res) => {
     }
 
     const lines = [];
-    lines.push("Новый заказ на свечи");
+    lines.push("📦 Новый заказ на свечи");
     lines.push("━━━━━━━━━━━━━━━");
-    lines.push(` Имя: ${firstName}${lastName ? " " + lastName : ""}`);
-    lines.push(` Телефон: ${phone}`);
-    if (delivery) lines.push(` Доставка: ${delivery}`);
-    if (payment) lines.push(` Оплата: ${payment}`);
-    if (date) lines.push(` Дата отправки: ${date}`);
-    if (comment) lines.push(` Комментарий: ${comment}`);
+    lines.push(`👤 Имя: ${firstName}${lastName ? " " + lastName : ""}`);
+    lines.push(`📞 Телефон: ${phone}`);
+    if (delivery) lines.push(`🚚 Доставка: ${delivery}`);
+    if (payment) lines.push(`💳 Оплата: ${payment}`);
+    if (date) lines.push(`🗓 Дата отправки: ${date}`);
+    if (comment) lines.push(`💬 Комментарий: ${comment}`);
 
     if (Array.isArray(items) && items.length) {
       lines.push("───────────────");
