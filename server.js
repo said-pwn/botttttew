@@ -4,61 +4,23 @@ import fetch from "node-fetch";
 
 const app = express();
 
-// Middleware
 app.use(express.json());
 app.use(cors());
-app.options("*", cors());
 
-// Конфигурация Telegram
+// Telegram
 const BOT_TOKEN = "8278406628:AAEC8yF_ZRjSbEVNsz-1RDXejm-HxK-P0MY";
 const CHAT_ID = "1395598568";
 
 // POST маршрут для заказов
 app.post("/api/order", async (req, res) => {
   try {
-    const { firstName, lastName, phone, delivery, payment, date, comment, items = [], total = 0 } = req.body;
+    const { firstName, lastName, phone, items = [], total = 0 } = req.body;
+    if (!firstName || !phone) return res.status(400).json({ error: "Имя и телефон обязательны" });
 
-    if (!firstName || !phone) {
-      return res.status(400).json({ error: "Имя и телефон обязательны" });
-    }
-
-    const lines = [
-      "📦 Новый заказ на свечи",
-      "━━━━━━━━━━━━━━━",
-      `👤 Имя: ${firstName}${lastName ? " " + lastName : ""}`,
-      `📞 Телефон: ${phone}`,
-    ];
-
-    if (delivery) lines.push(`🚚 Доставка: ${delivery}`);
-    if (payment) lines.push(`💳 Оплата: ${payment}`);
-    if (date) lines.push(`🗓 Дата отправки: ${date}`);
-    if (comment) lines.push(`💬 Комментарий: ${comment}`);
-
-    if (items.length) {
-      lines.push("───────────────", "Состав заказа:");
-      items.forEach((it, idx) => {
-        const name = it.name || "Товар";
-        const qty = Number(it.quantity || 1);
-        const price = Number(it.price || 0);
-        const sum = (price * qty).toLocaleString("ru-RU");
-
-        const details = [];
-        if (it.type) details.push(`тип: ${it.type}`);
-        if (it.variant) details.push(`вариант: ${it.variant}`);
-        if (it.categoryName || it.category) details.push(`категория: ${it.categoryName || it.category}`);
-        if (it.color) details.push(`цвет: ${it.color}`);
-        if (it.size) details.push(`размер: ${it.size}`);
-        if (it.scent) details.push(`аромат: ${it.scent}`);
-        if (it.wick) details.push(`фитиль: ${it.wick}`);
-        if (typeof it.cottonWick === "boolean") details.push(`хлопковый фитиль: ${it.cottonWick ? "да" : "нет"}`);
-        const extra = details.length ? ` (${details.join(", ")})` : "";
-
-        lines.push(`${idx + 1}) ${name}${extra} × ${qty} — ${sum} сум`);
-      });
-    }
-
-    lines.push("───────────────", `Итого: ${Number(total).toLocaleString("ru-RU")} сум`);
-
+    const lines = ["📦 Новый заказ"];
+    lines.push(`👤 ${firstName} ${lastName || ""}`);
+    lines.push(`📞 ${phone}`);
+    lines.push(`Итого: ${Number(total).toLocaleString("ru-RU")} сум`);
     const message = lines.join("\n");
 
     const tgResponse = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
@@ -68,25 +30,19 @@ app.post("/api/order", async (req, res) => {
     });
 
     const tgData = await tgResponse.json();
+    if (!tgResponse.ok || tgData.ok === false) return res.status(500).json({ error: "Telegram error", details: tgData });
 
-    if (!tgResponse.ok || tgData.ok === false) {
-      console.error("Ошибка Telegram:", tgData);
-      return res.status(500).json({ error: "Ошибка при отправке в Telegram", details: tgData });
-    }
-
-    console.log("✅ Новый заказ успешно отправлен в Telegram");
     res.json({ success: true, message: "Заказ успешно отправлен!" });
   } catch (err) {
-    console.error("Ошибка сервера:", err);
-    res.status(500).json({ error: "Ошибка на сервере" });
+    console.error(err);
+    res.status(500).json({ error: "Ошибка сервера" });
   }
 });
 
-// Обработка всех остальных маршрутов (404)
-app.all("*", (req, res) => {
+// 🚫 Для всех остальных запросов делаем 404 (без "*")
+app.use((req, res) => {
   res.status(404).json({ error: "Not Found" });
 });
 
-// 🚀 Запуск сервера
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`✅ Сервер запущен на порту ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
