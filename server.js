@@ -14,7 +14,7 @@ const CHAT_ID = "1395598568";
 // POST маршрут для заказов
 app.post("/api/order", async (req, res) => {
   try {
-    const { firstName, lastName, phone, delivery, payment, date, comment, items = [], total = 0 } = req.body;
+    const { firstName, lastName, phone, delivery, payment, date, comment, connectMethod, items = [], total = 0 } = req.body;
 
     if (!firstName || !phone) {
       return res.status(400).json({ error: "Имя и телефон обязательны" });
