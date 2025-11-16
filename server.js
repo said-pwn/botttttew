@@ -29,6 +29,7 @@ app.post("/api/order", async (req, res) => {
     if (payment) lines.push(`💳 Оплата: ${payment}`);
     if (date) lines.push(`🗓 Дата отправки: ${date}`);
     if (comment) lines.push(`💬 Комментарий: ${comment}`);
+    if (connectMethod) lines.push(`📱 Способ связи: ${connectMethod}`);
 
     if (Array.isArray(items) && items.length) {
       lines.push("───────────────");
